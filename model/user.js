@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const Joi = require('joi');
 
+const { Project } = require('./project');
+
 const userSchema = new mongoose.Schema({
     email:{
         type: String,
@@ -22,7 +24,10 @@ const userSchema = new mongoose.Schema({
     },
     projects:{
         type: Array,
-        default: [] // array of ids of projects
+        default: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Project'
+        }] // array of ids of projects
     }
 });
 
@@ -41,4 +46,4 @@ function validateUser(user) {
 const User = mongoose.model('User', userSchema);
 
 exports.User = User;
-exports.validate = validateUser;
+exports.validateUser = validateUser;

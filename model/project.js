@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 const Joi = require('joi');
 
+const { Task } = require('./task');
+const { User } = require('./user');
+
 const projectSchema = new mongoose.Schema({
     title: {
         type: String,
@@ -14,25 +17,30 @@ const projectSchema = new mongoose.Schema({
         type: String,
         default: null
     },
-    team: {
-        type: Array,
-        default: [] // array of ids of user
-    },
+    team: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        }
+    ],
     lead: {
-        type: String, // id of lead user
-        default: null
+        type: mongoose.Schema.Types.ObjectId, // id of lead user
+        ref: 'User',
+        required: true
     },
-    tasks: {
-        type: Array,
-        default: [] // array of ids of task
-    },
+    tasks: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Task'
+        }
+    ],
     active: {   
         type: Boolean,
         default: true
     },
     messages: {
         type: Array,
-        default: [] // array of message object
+        default: []
     }
 });
 
@@ -52,4 +60,4 @@ function validateProject(project) {
 const Project = mongoose.model('Project', projectSchema);
 
 exports.Project = Project;
-exports.validate = validateProject;
+exports.validateProject = validateProject;

@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const Joi = require('joi');
 
+const { User } = require('./user');
+
 const taskSchema = new mongoose.Schema({
     title: {
         type: String,
@@ -15,20 +17,24 @@ const taskSchema = new mongoose.Schema({
         default: null
     },
     taskLead: {
-        type: String, // id of lead user
-        default: null
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
     },
-    assignedTo: {
-        type: Array,
-        default: []
-    },
-    reportTo: {
-        type: Array,
-        default: []
-    },
+    assignedTo:[
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        }
+    ],
+    reportTo: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        }
+    ],
     messages: {
         type: Array,
-        default: [] // array of message object
+        default: []
     },
     alert:{
         type: String,
@@ -59,4 +65,4 @@ function validateTask(task) {
 const Task = mongoose.model('Task', taskSchema);
 
 exports.Task = Task;
-exports.validate = validateTask;
+exports.validateTask = validateTask;
