@@ -8,7 +8,7 @@ const projectTeam = require('../middleware/projectTeam');
 const isTeamMember = require('../functions/teamMember');
 
 const { Project, validateProject } = require('../model/project');
-const { User } = require('../model/user');
+const { User, validateUser } = require('../model/user');
 
 const router = express.Router();
 
@@ -37,13 +37,17 @@ router.get('/open/:id', [auth, projectTeam] , async (req, res)=>{
 
 // post request -> Add a project
 router.post('/', auth, async(req, res) => {
+    
+    const { error } = validateProject(req.body);
+    if( error ) return res.status(400).send("Invalid request");
+
     let project = new Project({
         title: req.body.title,
         description: req.body.description
     });
     // add a lead
         // find the user
-        let lead = await User.find({email: req.body.email})
+        let lead = await User.find({email: req.body.lead})
         .select('_id username email projects');
 
         // pushing lead in team of project
@@ -77,6 +81,10 @@ router.post('/', auth, async(req, res) => {
 
 // put request -> Change title/description/refrences
 router.put('/:id', [auth, projectTeam] ,async(req, res)=>{
+
+    const { error } = validateProject(req.body);
+    if( error ) return res.status(400).send("Invalid request");
+
     const project = await Project.findByIdAndUpdate(req.params.id,{
         title: req.body.title,
         description: req.body.description,
@@ -88,6 +96,10 @@ router.put('/:id', [auth, projectTeam] ,async(req, res)=>{
 
 // put request -> To add a team member
 router.put('/add/:id', [auth, projectTeam] ,async(req, res)=>{
+
+    const { error } = validateUser(req.body);
+    if( error ) return res.status(400).send("Invalid request");
+
     let project = await Project.findById(req.params.id)
     .select('team');
 
@@ -117,7 +129,7 @@ router.put('/remove/:id', [auth, projectTeam] ,async(req, res)=>{
 
     // deleted user from project
     project.team.filter(
-        member => member != req.body.userId
+        member => !member.equals(req.body.userId)
     );
     
     // delete project from user
@@ -125,7 +137,7 @@ router.put('/remove/:id', [auth, projectTeam] ,async(req, res)=>{
     .select('projects');
 
     user.projects.filter(
-        x => x != project._id
+        x => !x.equals(project._id)
     );
 
     user = await user.save();
@@ -137,6 +149,10 @@ router.put('/remove/:id', [auth, projectTeam] ,async(req, res)=>{
 
 // put request -> Change lead
 router.put('/lead/:id', [auth, projectTeam] ,async(req, res)=>{  
+    
+    const { error } = validateUser(req.body);
+    if( error ) return res.status(400).send("Invalid request");
+    
     // found the user  
     const lead = await User.find({email: req.body.email})
     .select('_id username email');
@@ -146,18 +162,18 @@ router.put('/lead/:id', [auth, projectTeam] ,async(req, res)=>{
     .select('lead team');
 
     // check if user is team member of project
-    if( isTeamMember(project, lead) ){
-
-        // set project's lead to this user
-        project.lead = lead;
-        // save the project
-        project = await project.save();
-
-        res.json({
-            project: project,
-            lead: lead
-        });
+    if( !isTeamMember(project, lead) ){
+        return res.send("Not a team member");
     };
+    // set project's lead to this user
+    project.lead = lead._id;
+    // save the project
+    project = await project.save();
+
+    res.json({
+        project: project,
+        lead: lead
+    });
 });
 
 // -->

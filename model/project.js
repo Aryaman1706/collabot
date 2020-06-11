@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 
 const { Task } = require('./task');
 const { User } = require('./user');
@@ -50,7 +50,7 @@ function validateProject(project) {
         description: Joi.string().required(),
         refrences: Joi.string(),
         team: Joi.array(),
-        lead: Joi.string(),
+        lead: Joi.string().email().required(),
         tasks: Joi.array(),
         active: Joi.boolean(),
         messages: Joi.array()

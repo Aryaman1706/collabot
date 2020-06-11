@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Joi = require('joi');
+const Joi = require('jo@hapi/joi');
 
 const { Project } = require('./project');
 

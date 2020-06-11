@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 const moment = require('moment');
 
 const messageSchema = new mongoose.Schema({

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 
 const { User } = require('./user');
 
@@ -51,7 +51,7 @@ function validateTask(task) {
         title: Joi.string().required(),
         description: Joi.string().required(),
         refrences: Joi.string(),
-        taskLead: Joi.string(),
+        taskLead: Joi.string().email().required(),
         assignedTo: Joi.array(),
         reportTo: Joi.array(),
         messages: Joi.array(),
