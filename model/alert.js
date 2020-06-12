@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 const moment = require('moment');
 
 const alertSchema = new mongoose.Schema({
@@ -25,4 +25,4 @@ function validateAlert(alert) {
 const Alert = mongoose.model('Alert', alertSchema);
 
 exports.Alert = Alert;
-exports.validate = validateAlert;
+exports.validateAlert = validateAlert;

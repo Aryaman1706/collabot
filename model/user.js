@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
-const Joi = require('jo@hapi/joi');
-
-const { Project } = require('./project');
+const jwt = require('jsonwebtoken');
+const Joi = require('joi');
 
 const userSchema = new mongoose.Schema({
     email:{
@@ -22,19 +21,18 @@ const userSchema = new mongoose.Schema({
         maxlength: 10,
         default: null
     },
-    projects:{
-        type: Array,
-        default: [{
+    projects:[
+        {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Project'
-        }] // array of ids of projects
-    }
+        }
+    ]
 });
 
 function validateUser(user) {
     const schema = {
         email: Joi.string().email().required(),
-        password: Joi.string().min(8).max(12),
+        password: Joi.string(),
         username: Joi.string().min(5).required(),
         phone: Joi.string().max(10),
         projects: Joi.array()
@@ -42,6 +40,17 @@ function validateUser(user) {
 
     return Joi.validate(user, schema);
 };
+
+// generate jwt
+userSchema.methods.generateAuthToken = function(){
+    const token = jwt.sign({
+        email: this.email,
+        username: this.username,
+        _id: this._id
+    }, "key");
+    
+    return token;
+}
 
 const User = mongoose.model('User', userSchema);
 

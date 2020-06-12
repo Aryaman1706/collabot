@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 
-const { User } = require('./user');
 
 const taskSchema = new mongoose.Schema({
     title: {
@@ -51,7 +50,7 @@ function validateTask(task) {
         title: Joi.string().required(),
         description: Joi.string().required(),
         refrences: Joi.string(),
-        taskLead: Joi.string().email().required(),
+        taskLead: Joi.string().email(),
         assignedTo: Joi.array(),
         reportTo: Joi.array(),
         messages: Joi.array(),

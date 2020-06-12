@@ -45,24 +45,10 @@ router.post('/', auth, async(req, res) => {
         title: req.body.title,
         description: req.body.description
     });
-    // add a lead
-        // find the user
-        let lead = await User.find({email: req.body.lead})
-        .select('_id username email projects');
-
-        // pushing lead in team of project
-        project.team.push(lead._id);
-
-        // pushing project in projects of lead
-        lead.projects.push(project._id);
-
-        // setting lead of project to this lead
-        project.lead = lead; 
 
     // adding yourself to team
-        const me = await User.findById(req.user._id)
+        let me = await User.findById(req.user._id)
         .select('_id username email projects');
-        
         // push yourself in team
         project.team.push(me._id);
 
@@ -72,11 +58,7 @@ router.post('/', auth, async(req, res) => {
         me = await me.save();
 
     project = await project.save();
-    lead = await lead.save();
-    res.json({
-        project: project,
-        lead: lead
-    });
+    res.json(project);
 });
 
 // put request -> Change title/description/refrences
@@ -97,21 +79,22 @@ router.put('/:id', [auth, projectTeam] ,async(req, res)=>{
 // put request -> To add a team member
 router.put('/add/:id', [auth, projectTeam] ,async(req, res)=>{
 
-    const { error } = validateUser(req.body);
-    if( error ) return res.status(400).send("Invalid request");
-
     let project = await Project.findById(req.params.id)
     .select('team');
 
-    const newMember = await User.find({email: req.body.email})
+    let newMember = await User.findOne({email: req.body.email})
     .select('username email _id projects');
+
+    if( !newMember ){
+        return res.send("No user found");
+    };
     
     if( !isTeamMember(project, newMember) ){
         // pushing user to project
         project.team.push(newMember._id);
     
         // pushing project to user
-        User.projects.push(project._id);
+        newMember.projects.push(project._id);
         
         project = await project.save();
         newMember = await newMember.save();
@@ -127,16 +110,16 @@ router.put('/remove/:id', [auth, projectTeam] ,async(req, res)=>{
     let project = await Project.findById(req.params.id)
     .select('team _id');
 
+    let user = await User.findOne({email:req.body.email})
+    .select('projects');
+
     // deleted user from project
-    project.team.filter(
-        member => !member.equals(req.body.userId)
+    project.team = project.team.filter(
+        member => !member.equals(user._id)
     );
     
     // delete project from user
-    const user = await User.findById(req.body.userId)
-    .select('projects');
-
-    user.projects.filter(
+    user.projects = user.projects.filter(
         x => !x.equals(project._id)
     );
 
@@ -150,11 +133,8 @@ router.put('/remove/:id', [auth, projectTeam] ,async(req, res)=>{
 // put request -> Change lead
 router.put('/lead/:id', [auth, projectTeam] ,async(req, res)=>{  
     
-    const { error } = validateUser(req.body);
-    if( error ) return res.status(400).send("Invalid request");
-    
     // found the user  
-    const lead = await User.find({email: req.body.email})
+    const lead = await User.findOne({email: req.body.email})
     .select('_id username email');
     
     // find the project
@@ -177,3 +157,5 @@ router.put('/lead/:id', [auth, projectTeam] ,async(req, res)=>{
 });
 
 // -->
+
+module.exports = router;

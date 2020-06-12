@@ -7,13 +7,13 @@ const lead = require('../middleware/projectLead');
 const taskLead = require('../middleware/taskLead');
 
 const { Task, validateTask } = require('../model/task');
-const { Project, validateProject } = require('../model/project');
-const { User, validateUser } = require('../model/user');
+const { Project } = require('../model/project');
+const { User } = require('../model/user');
 
-const { isTeamMember } = require('../functions/teamMember');
-const { isTaskLead } = require('../functions/taskLead');
-const { alreadyAssigned } = require('../functions/alreadyAssigned');
-const { alreadyReport } = require('../functions/alreadyReport');
+const isTeamMember = require('../functions/teamMember');
+const  isTaskLead  = require('../functions/taskLead');
+const  alreadyAssigned = require('../functions/alreadyAssigned');
+const  alreadyReport  = require('../functions/alreadyReport');
 
 const router = express.Router();
 
@@ -55,8 +55,11 @@ router.post('/addTask/:id', [auth,lead], async(req,res)=>{
 
     // add taskLead to task
         // find the user
-        const taskLead = await User.find({email: req.body.taskLead})
+        const taskLead = await User.findOne({email: req.body.taskLead})
         .select('username email _id');
+        if( !taskLead ){
+            return res.send("No such User found");
+        };
         // check if user is already a team member
         if( !isTeamMember(project, taskLead) ){
             return res.send("Not a team member");
@@ -68,6 +71,7 @@ router.post('/addTask/:id', [auth,lead], async(req,res)=>{
     // add this task to project
     project.tasks.push(task);
     project = await project.save();
+    task = await task.save();
 
     res.json({
         task: task,
@@ -84,7 +88,7 @@ router.put('/:id', auth, async(req, res)=>{
     const task = await Task.findByIdAndUpdate(req.params.id,{
         title: req.body.title,
         description: req.body.description,
-        refrences = req.body.refrences
+        refrences : req.body.refrences
     },{ new: true });
 
     res.send(task);
@@ -134,7 +138,7 @@ router.put('/removeAssign/:id', [auth, taskLead], async(req, res)=>{
         return res.send("No such user in assignedTo");
     };
     // remove req.body._id from task.assignedTo
-    task.assignedTo.filter(
+    task.assignedTo = task.assignedTo.filter(
         member => !member.equals(req.body._id) 
     );
     // save task
@@ -153,7 +157,7 @@ router.put('/removeReport/:id', [auth, taskLead], async(req, res)=>{
         return res.send("No such user in reportTo");
     };
     // remove req.body._id from task.reportTo
-    task.reportTo.filter(
+    task.reportTo = task.reportTo.filter(
         member => !member.equals(req.body._id) 
     );
     // save task
@@ -167,19 +171,17 @@ router.put('/taskLead/:id', auth, async(req, res)=>{
     // find new lead
     const newLead = await User.findById(req.body._id)
     .select('email username _id');
-    // check if new lead is a team member
-    if( !isTeamMember(req.body.project, newLead) ){
-        return res.send("not a team member");
-    };
     // task findbyidandupdate
     const task = await Task.findByIdAndUpdate(req.params.id,{
         taskLead: newLead._id
     },{new: true});
 
-    req.json({
+    res.json({
         task: task,
         taskLead: newLead
     });
 });
 
 // -->
+
+module.exports = router;
