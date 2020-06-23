@@ -1,14 +1,30 @@
 import React, { Fragment } from "react";
 import TeamMemberItem from "./TeamMemberItem";
+import { Link } from "react-router-dom";
 
-const TaskTeamItem = ({ title, add, edit, lead }) => {
+const TaskTeamItem = ({ type }) => {
+  let title;
+  if (type === "lead") {
+    title = "Task Lead";
+  } else if (type === "assign") {
+    title = "Assigned To";
+  } else {
+    title = "Report To";
+  }
+
   return (
     <Fragment>
       <div className="col s4">
         <div style={custom}>
-          <h5 style={text}>{title}</h5>
+          <div className="row" style={{ margin: "0px" }}>
+            <h5 style={text}>{title}</h5>
+            <Link to="/editTaskTeam" className="right white-text">
+              <i className="material-icons left">edit</i>
+              <strong>Edit</strong>
+            </Link>
+          </div>
         </div>
-        <TeamMemberItem add={add} edit={edit} lead={lead} />
+        <TeamMemberItem type={type} />
       </div>
     </Fragment>
   );

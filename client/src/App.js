@@ -7,6 +7,7 @@ import Home from "./Pages/Home";
 import Project from "./Pages/Project";
 import Task from "./Pages/Task";
 import Team from "./Pages/Team";
+import EditTaskTeam from "./Pages/EditTaskTeam";
 
 const App = () => {
   return (
@@ -18,6 +19,7 @@ const App = () => {
           <Route exact path="/project" component={Project} />
           <Route exact path="/task" component={Task} />
           <Route exact path="/team" component={Team} />
+          <Route exact path="/editTaskTeam" component={EditTaskTeam} />
         </Switch>
       </Fragment>
     </Router>

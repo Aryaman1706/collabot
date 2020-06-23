@@ -15,25 +15,20 @@ const TaskTeamCollection = () => {
           backgroundColor: "rgb(1, 22, 39)",
         }}
       >
+        <h4
+          className="left"
+          style={{
+            color: "rgb(32, 164, 243)",
+            fontFamily: "Philosopher sans-serif",
+            width: "100%",
+          }}
+        >
+          Team for this Task
+        </h4>
         <div className="row" style={{ margin: "0px" }}>
-          <h4
-            className="left"
-            style={{
-              color: "rgb(32, 164, 243)",
-              fontFamily: "Philosopher sans-serif",
-            }}
-          >
-            Team for this Task
-          </h4>
-          <a href="#!" className="right" style={{ marginTop: "25px" }}>
-            Click to Edit Team<i className="material-icons left">edit</i>
-          </a>
-        </div>
-
-        <div className="row" style={{ margin: "0px" }}>
-          <TaskTeamItem title={"Task Lead"} />
-          <TaskTeamItem title={"Assigned to"} />
-          <TaskTeamItem title={"Report to"} />
+          <TaskTeamItem type={"lead"} />
+          <TaskTeamItem type={"assign"} />
+          <TaskTeamItem type={"report"} />
         </div>
       </div>
     </div>

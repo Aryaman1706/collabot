@@ -36,9 +36,12 @@ const ProjectCollection = () => {
               Click to Add Projects<i className="material-icons left">add</i>
             </a>
           </div>
-          <div className="row" style={{ margin: "0px" }}>
+          <ul className="collapsible popout" style={{ border: "0" }}>
             <ProjectItem />
-          </div>
+            <ProjectItem />
+            <ProjectItem />
+            <ProjectItem />
+          </ul>
         </div>
       </div>
 

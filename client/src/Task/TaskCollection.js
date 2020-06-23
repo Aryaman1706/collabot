@@ -36,9 +36,9 @@ const TaskCollection = () => {
             </a>
           </div>
 
-          <div className="row" style={{ margin: "0px" }}>
+          <ul className="collapsible popout" style={{ border: "0" }}>
             <TaskItem />
-          </div>
+          </ul>
         </div>
       </div>
 
